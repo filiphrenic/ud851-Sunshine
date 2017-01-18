@@ -15,9 +15,12 @@
  */
 package com.example.android.sunshine.utilities;
 
+import android.net.Uri;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -58,15 +61,36 @@ public final class NetworkUtils {
     final static String DAYS_PARAM = "cnt";
 
     /**
+     * Create a basic uri builder
+     *
+     * @return uri builder
+     */
+    private static Uri.Builder createBuilder() {
+        return Uri.parse(FORECAST_BASE_URL).buildUpon()
+                .appendQueryParameter(FORMAT_PARAM, format)
+                .appendQueryParameter(UNITS_PARAM, units)
+                .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays));
+    }
+
+    /**
      * Builds the URL used to talk to the weather server using a location. This location is based
      * on the query capabilities of the weather provider that we are using.
      *
      * @param locationQuery The location that will be queried for.
+     *
      * @return The URL to use to query the weather server.
      */
     public static URL buildUrl(String locationQuery) {
-        // TODO (1) Fix this method to return the URL used to query Open Weather Map's API
-        return null;
+        // COMPLETED (1) Fix this method to return the URL used to query Open Weather Map's API
+        String uri = createBuilder().appendQueryParameter(QUERY_PARAM, locationQuery).toString();
+
+        URL url = null;
+        try {
+            url = new URL(uri);
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+        return url;
     }
 
     /**
@@ -75,6 +99,7 @@ public final class NetworkUtils {
      *
      * @param lat The latitude of the location
      * @param lon The longitude of the location
+     *
      * @return The Url to use to query the weather server.
      */
     public static URL buildUrl(Double lat, Double lon) {
@@ -86,6 +111,7 @@ public final class NetworkUtils {
      * This method returns the entire result from the HTTP response.
      *
      * @param url The URL to fetch the HTTP response from.
+     *
      * @return The contents of the HTTP response.
      * @throws IOException Related to network and stream reading
      */
