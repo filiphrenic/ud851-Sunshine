@@ -8,9 +8,6 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 
-import static android.R.attr.key;
-import static android.R.attr.value;
-
 // COMPLETED (10) Implement OnSharedPreferenceChangeListener from SettingsFragment
 
 // COMPLETED (8) Create a method called setPreferenceSummary that accepts a Preference and an Object and sets the summary of the preference
