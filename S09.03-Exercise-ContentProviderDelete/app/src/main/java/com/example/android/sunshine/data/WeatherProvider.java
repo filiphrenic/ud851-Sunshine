@@ -189,6 +189,7 @@ public class WeatherProvider extends ContentProvider {
      *                      the values from selectionArgs, in order that they appear in the
      *                      selection.
      * @param sortOrder     How the rows in the cursor should be sorted.
+     *
      * @return A Cursor containing the results of the query. In our implementation,
      */
     @Override
@@ -293,22 +294,33 @@ public class WeatherProvider extends ContentProvider {
         return cursor;
     }
 
-//  TODO (1) Implement the delete method of the ContentProvider
+//  COMPLETED (1) Implement the delete method of the ContentProvider
+
     /**
      * Deletes data at a given URI with optional arguments for more fine tuned deletions.
      *
      * @param uri           The full URI to query
      * @param selection     An optional restriction to apply to rows when deleting.
      * @param selectionArgs Used in conjunction with the selection statement
+     *
      * @return The number of rows deleted
      */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-        throw new RuntimeException("Student, you need to implement the delete method!");
+//          COMPLETED (2) Only implement the functionality, given the proper URI, to delete ALL rows in the weather table
+        switch (sUriMatcher.match(uri)) {
+            case CODE_WEATHER:
+                //      COMPLETED (3) Return the number of rows deleted
+                int rows =mOpenHelper.getWritableDatabase()
+                        .delete(WeatherContract.WeatherEntry.TABLE_NAME, selection, selectionArgs);
+                if (rows>0){
+                    getContext().getContentResolver().notifyChange(uri,null);
+                }
+                return rows;
+            default:
+                throw new UnsupportedOperationException("Unknown Uri: " + uri);
+        }
 
-//          TODO (2) Only implement the functionality, given the proper URI, to delete ALL rows in the weather table
-
-//      TODO (3) Return the number of rows deleted
     }
 
     /**
@@ -319,6 +331,7 @@ public class WeatherProvider extends ContentProvider {
      * return an image URI from this method.
      *
      * @param uri the URI to query.
+     *
      * @return nothing in Sunshine, but normally a MIME type string, or null if there is no type.
      */
     @Override
@@ -335,6 +348,7 @@ public class WeatherProvider extends ContentProvider {
      * @param uri    The URI of the insertion request. This must not be null.
      * @param values A set of column_name/value pairs to add to the database.
      *               This must not be null
+     *
      * @return nothing in Sunshine, but normally the URI for the newly inserted item.
      */
     @Override
