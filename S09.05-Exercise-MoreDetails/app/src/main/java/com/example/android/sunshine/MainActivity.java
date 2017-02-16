@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements
      *
      * @param loaderId The loader ID for which we need to create a loader
      * @param bundle   Any arguments supplied by the caller
+     *
      * @return A new Loader instance that is ready to start loading.
      */
     @Override
@@ -238,9 +239,13 @@ public class MainActivity extends AppCompatActivity implements
 
 
         mForecastAdapter.swapCursor(data);
-        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+        if (mPosition == RecyclerView.NO_POSITION) {
+            mPosition = 0;
+        }
         mRecyclerView.smoothScrollToPosition(mPosition);
-        if (data.getCount() != 0) showWeatherDataView();
+        if (data.getCount() != 0) {
+            showWeatherDataView();
+        }
     }
 
     /**
@@ -258,19 +263,21 @@ public class MainActivity extends AppCompatActivity implements
         mForecastAdapter.swapCursor(null);
     }
 
-    //  TODO (38) Refactor onClick to accept a long instead of a String as its parameter
+    //  COMPLETED (38) Refactor onClick to accept a long instead of a String as its parameter
+
     /**
      * This method is for responding to clicks from our list.
      *
-     * @param weatherForDay String describing weather details for a particular day
+     * @param date date
      */
     @Override
-    public void onClick(String weatherForDay) {
-//      TODO (39) Refactor onClick to build a URI for the clicked date and and pass it with the Intent using setData
+    public void onClick(long date) {
+//      COMPLETED (39) Refactor onClick to build a URI for the clicked date and and pass it with the Intent using setData
+        Uri uri = WeatherContract.WeatherEntry.CONTENT_URI.buildUpon().appendPath("" + date).build();
         Context context = this;
         Class destinationClass = DetailActivity.class;
         Intent intentToStartDetailActivity = new Intent(context, destinationClass);
-        intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, weatherForDay);
+        intentToStartDetailActivity.setData(uri);
         startActivity(intentToStartDetailActivity);
     }
 
@@ -308,8 +315,7 @@ public class MainActivity extends AppCompatActivity implements
      * @param menu The options menu in which you place your items.
      *
      * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     *
+     * if you return false it will not be shown.
      * @see #onPrepareOptionsMenu
      * @see #onOptionsItemSelected
      */
