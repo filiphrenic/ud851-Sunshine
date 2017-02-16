@@ -20,8 +20,11 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+
+import com.example.android.sunshine.utilities.SunshineDateUtils;
 
 /**
  * This class serves as the ContentProvider for all of Sunshine's data. This class allows us to
@@ -122,7 +125,8 @@ public class WeatherProvider extends ContentProvider {
         return true;
     }
 
-//  TODO (1) Implement the bulkInsert method
+//  COMPLETED (1) Implement the bulkInsert method
+
     /**
      * Handles requests to insert a set of new rows. In Sunshine, we are only going to be
      * inserting multiple rows of data at a time from a weather forecast. There is no use case
@@ -138,13 +142,39 @@ public class WeatherProvider extends ContentProvider {
      */
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
-        throw new RuntimeException("Student, you need to implement the bulkInsert method!");
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        int rowsInserted = 0;
 
-//          TODO (2) Only perform our implementation of bulkInsert if the URI matches the CODE_WEATHER code
+//          COMPLETED (2) Only perform our implementation of bulkInsert if the URI matches the CODE_WEATHER code
+        switch (sUriMatcher.match(uri)) {
+            case CODE_WEATHER:
+                db.beginTransaction();
+                try {
+                    for (ContentValues cv : values) {
+                        long date = cv.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE);
+                        if (!SunshineDateUtils.isDateNormalized(date)) {
+                            throw new IllegalArgumentException("Date not normalized " + date);
+                        }
+                        if (db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, cv) != -1) {
+                            ++rowsInserted;
+                        }
 
-//              TODO (3) Return the number of rows inserted from our implementation of bulkInsert
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                break;
+            default:
+                // COMPLETED (4) If the URI does match match CODE_WEATHER, return the super implementation of bulkInsert
+                return super.bulkInsert(uri, values);
+        }
 
-//          TODO (4) If the URI does match match CODE_WEATHER, return the super implementation of bulkInsert
+//              COMPLETED (3) Return the number of rows inserted from our implementation of bulkInsert
+        if (rowsInserted > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsInserted;
     }
 
     /**
@@ -160,6 +190,7 @@ public class WeatherProvider extends ContentProvider {
      *                      the values from selectionArgs, in order that they appear in the
      *                      selection.
      * @param sortOrder     How the rows in the cursor should be sorted.
+     *
      * @return A Cursor containing the results of the query. In our implementation,
      */
     @Override
@@ -270,6 +301,7 @@ public class WeatherProvider extends ContentProvider {
      * @param uri           The full URI to query
      * @param selection     An optional restriction to apply to rows when deleting.
      * @param selectionArgs Used in conjunction with the selection statement
+     *
      * @return The number of rows deleted
      */
     @Override
@@ -285,6 +317,7 @@ public class WeatherProvider extends ContentProvider {
      * return an image URI from this method.
      *
      * @param uri the URI to query.
+     *
      * @return nothing in Sunshine, but normally a MIME type string, or null if there is no type.
      */
     @Override
@@ -301,6 +334,7 @@ public class WeatherProvider extends ContentProvider {
      * @param uri    The URI of the insertion request. This must not be null.
      * @param values A set of column_name/value pairs to add to the database.
      *               This must not be null
+     *
      * @return nothing in Sunshine, but normally the URI for the newly inserted item.
      */
     @Override
