@@ -217,6 +217,8 @@
 
     <string name="condition_unknown">Unknown (<xliff:g id="conditionId">%1$d</xliff:g>)</string>
 
+    <string name="pref_notif_key">show_notifications</string>
+    <string name="pref_notif_title">Show notifications</string>
 
 
     <!-- Used by NotificationUtils -->
