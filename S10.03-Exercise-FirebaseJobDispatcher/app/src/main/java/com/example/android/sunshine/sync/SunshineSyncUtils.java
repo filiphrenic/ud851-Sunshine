@@ -22,16 +22,48 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.example.android.sunshine.data.WeatherContract;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.Trigger;
+
+import java.util.concurrent.TimeUnit;
 
 public class SunshineSyncUtils {
 
-//  TODO (10) Add constant values to sync Sunshine every 3 - 4 hours
+//  COMPLETED (10) Add constant values to sync Sunshine every 3 - 4 hours
+
+    private static final long SYNC_START_HOURS = 3;
+    private static final int SYNC_DURATION_HOURS = 1;
+    private static final int SYNC_START = (int) TimeUnit.HOURS.toSeconds(SYNC_START_HOURS);
+    private static final int SYNC_DURATION = (int) TimeUnit.HOURS.toSeconds(SYNC_DURATION_HOURS);
 
     private static boolean sInitialized;
 
-//  TODO (11) Add a sync tag to identify our sync job
+//  COMPLETED (11) Add a sync tag to identify our sync job
 
-//  TODO (12) Create a method to schedule our periodic weather sync
+    private static final String SYNC_TAG = "weather-job";
+
+//  COMPLETED (12) Create a method to schedule our periodic weather sync
+
+    private static void scheduleJob(Context context) {
+
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+
+        Job job = dispatcher.newJobBuilder()
+                .setTag(SYNC_TAG)
+                .setService(SunshineFirebaseJobService.class)
+                .setTrigger(Trigger.executionWindow(SYNC_START, SYNC_START + SYNC_DURATION))
+                .setConstraints(Constraint.ON_ANY_NETWORK)
+                .setLifetime(Lifetime.FOREVER)
+                .setReplaceCurrent(true)
+                .build();
+
+        dispatcher.schedule(job);
+    }
+
 
     /**
      * Creates periodic sync tasks and checks to see if an immediate sync is required. If an
@@ -46,11 +78,14 @@ public class SunshineSyncUtils {
          * Only perform initialization once per app lifetime. If initialization has already been
          * performed, we have nothing to do in this method.
          */
-        if (sInitialized) return;
+        if (sInitialized) {
+            return;
+        }
 
         sInitialized = true;
 
-//      TODO (13) Call the method you created to schedule a periodic weather sync
+//      COMPLETED (13) Call the method you created to schedule a periodic weather sync
+        scheduleJob(context);
 
         /*
          * We need to check to see if our ContentProvider has data to display in our forecast
