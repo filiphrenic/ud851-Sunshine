@@ -41,6 +41,8 @@ public class SunshineSyncUtils {
             return;
         }
 
+        sInitialized = true;
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -66,8 +68,6 @@ public class SunshineSyncUtils {
 
             }
         };
-
-        sInitialized = true;
 
     }
 
